@@ -11,6 +11,7 @@ import (
 	"path"
 	fpath "path/filepath"
 	"strconv"
+	"strings"
 )
 
 type TrashInfo struct {
@@ -85,14 +86,25 @@ func MoveToTrash(filepath string) error {
 	if err != nil {
 		return err
 	}
-
 	_, filename := path.Split(filepath)
 	trashedFilename := trashPath + "/files/" + filename
 	if isExist(trashedFilename) {
-		extension := fpath.Ext(trashedFilename)
-		trashedFilename = extension + "1"
+		trashedFilename = generateNewFilename(trashedFilename)
 	}
 	return os.Rename(filepath, trashedFilename)
+}
+
+func generateNewFilename(existingFilename string) string {
+	extension := fpath.Ext(existingFilename)
+	bareName := strings.TrimSuffix(existingFilename, extension)
+	newFilename := existingFilename
+	index := -1
+
+	for index == -1 || isExist(newFilename) {
+		index += 1
+		newFilename = bareName + strconv.Itoa(index) + extension
+	}
+	return newFilename
 }
 
 func RestoreFromTrash(filename string) {
