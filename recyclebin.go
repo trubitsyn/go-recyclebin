@@ -8,27 +8,51 @@ package recyclebin
 import (
 	"errors"
 	"os"
-	"path"
 	fpath "path/filepath"
 	"strconv"
 	"strings"
+	"path"
 )
 
-type TrashInfo struct {
+func MoveToTrash(filepath string) error {
+	trashPath, err := getTrashDirectory(filepath)
+	if err != nil {
+		return err
+	}
+	_, filename := path.Split(filepath)
+	trashedFilename := trashPath + "/files/" + filename
+	if isExist(trashedFilename) {
+		trashedFilename = generateNewFilename(trashedFilename)
+	}
+	return os.Rename(filepath, trashedFilename)
+}
+
+func RestoreFromTrash(filename string) {
+}
+
+func DeleteFromTrash(filename string) {
+}
+
+func EmptyTrash() {
+	homeTrashPath, _ := getHomeTrashDirectory()
+	emptyTrash(homeTrashPath)
+}
+
+type trashInfo struct {
 	Path         string
 	DeletionDate string
 }
 
-func GetTrashDirectory(filepath string) (string, error) {
+func getTrashDirectory(filepath string) (string, error) {
 	if isExternalDevice(filepath) {
-		deviceTrashPath, err := GetDeviceTrashDirectory(filepath)
+		deviceTrashPath, err := getDeviceTrashDirectory(filepath)
 		if err == nil {
 			return deviceTrashPath, nil
 		}
 		return "", err
 	}
 
-	homeTrashPath, err := GetHomeTrashDirectory()
+	homeTrashPath, err := getHomeTrashDirectory()
 	if err == nil {
 		return homeTrashPath, nil
 	}
@@ -39,7 +63,7 @@ func isExternalDevice(filepath string) bool {
 	return false
 }
 
-func GetHomeTrashDirectory() (string, error) {
+func getHomeTrashDirectory() (string, error) {
 	homeTrashPath := getDataHomeDirectory() + "/Trash"
 	if isExist(homeTrashPath) {
 		return homeTrashPath, nil
@@ -55,7 +79,7 @@ func getDataHomeDirectory() string {
 	return XDG_DATA_HOME
 }
 
-func GetDeviceTrashDirectory(partitionRootPath string) (string, error) {
+func getDeviceTrashDirectory(partitionRootPath string) (string, error) {
 	uid := os.Getuid()
 	topTrashPath := partitionRootPath + "/.Trash"
 	if !isExist(topTrashPath) {
@@ -81,19 +105,6 @@ func GetDeviceTrashDirectory(partitionRootPath string) (string, error) {
 	return uidTrashPath, nil
 }
 
-func MoveToTrash(filepath string) error {
-	trashPath, err := GetTrashDirectory(filepath)
-	if err != nil {
-		return err
-	}
-	_, filename := path.Split(filepath)
-	trashedFilename := trashPath + "/files/" + filename
-	if isExist(trashedFilename) {
-		trashedFilename = generateNewFilename(trashedFilename)
-	}
-	return os.Rename(filepath, trashedFilename)
-}
-
 func generateNewFilename(existingFilename string) string {
 	extension := fpath.Ext(existingFilename)
 	bareName := strings.TrimSuffix(existingFilename, extension)
@@ -105,17 +116,6 @@ func generateNewFilename(existingFilename string) string {
 		newFilename = bareName + strconv.Itoa(index) + extension
 	}
 	return newFilename
-}
-
-func RestoreFromTrash(filename string) {
-}
-
-func DeleteFromTrash(filename string) {
-}
-
-func EmptyTrash() {
-	homeTrashPath, _ := GetHomeTrashDirectory()
-	emptyTrash(homeTrashPath)
 }
 
 func emptyTrash(trashPath string) {
