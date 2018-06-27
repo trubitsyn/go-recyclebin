@@ -14,6 +14,7 @@ import (
 	"path"
 )
 
+// MoveToTrash moves file to trash.
 func MoveToTrash(filepath string) error {
 	trashPath, err := getTrashDirectory(filepath)
 	if err != nil {
@@ -27,12 +28,15 @@ func MoveToTrash(filepath string) error {
 	return os.Rename(filepath, trashedFilename)
 }
 
+// RestoreFromTrash restores file from trash.
 func RestoreFromTrash(filename string) {
 }
 
+// DeleteFromTrash permanently deletes file from trash.
 func DeleteFromTrash(filename string) {
 }
 
+// EmptyTrash enpties the trash.
 func EmptyTrash() {
 	homeTrashPath, _ := getHomeTrashDirectory()
 	emptyTrash(homeTrashPath)
