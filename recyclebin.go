@@ -32,7 +32,7 @@ func GetTrashDirectory(filepath string) (string, error) {
 	if err == nil {
 		return homeTrashPath, nil
 	}
-	return "", errors.New("Cannot find or create any trash directory.")
+	return "", errors.New("cannot find or create any trash directory")
 }
 
 func isExternalDevice(filepath string) bool {
@@ -44,7 +44,7 @@ func GetHomeTrashDirectory() (string, error) {
 	if isExist(homeTrashPath) {
 		return homeTrashPath, nil
 	}
-	return "", errors.New("Home trash directory does not exist.")
+	return "", errors.New("home trash directory does not exist")
 }
 
 func getDataHomeDirectory() string {
@@ -68,7 +68,7 @@ func GetDeviceTrashDirectory(partitionRootPath string) (string, error) {
 	}
 
 	if isSymlink(topTrashPath) {
-		return "", errors.New("Device top .Trash directory is a symbolic link.")
+		return "", errors.New("device's top .Trash directory is a symbolic link")
 	}
 
 	uidTrashPath := topTrashPath + strconv.Itoa(uid)
