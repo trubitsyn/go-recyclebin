@@ -36,7 +36,7 @@ func RestoreFromTrash(filename string) {
 func DeleteFromTrash(filename string) {
 }
 
-// EmptyTrash enpties the trash.
+// EmptyTrash empties the trash.
 func EmptyTrash() {
 	homeTrashPath, _ := getHomeTrashDirectory()
 	emptyTrash(homeTrashPath)
