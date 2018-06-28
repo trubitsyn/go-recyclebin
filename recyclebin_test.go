@@ -41,7 +41,28 @@ func TestDeleteFromTrash(t *testing.T) {
 
 func TestRestoreFromTrash(t *testing.T) {}
 
-func TestEmptyTrash(t *testing.T) {}
+func TestEmptyTrash(t *testing.T) {
+	trashPath := "/home/user/.local/share/Trash"
+	createTrashFile("script.sh")
+	createTrashFile("lib.so")
+	EmptyTrash()
+	success := !existsTrashFile(trashPath, "script.sh") && !existsTrashFile(trashPath, "lib.so")
+	if !success {
+		t.Error("trash has not been emptied")
+	}
+}
+
+func createTrashFile(filename string) {
+	trashPath := "/home/user/.local/share/Trash"
+	fs.MkdirAll(trashPath+"/files", os.ModeDir)
+	fs.Create(trashPath + "/files/" + filename)
+	fs.MkdirAll(trashPath+"/info", os.ModeDir)
+	fs.Create(trashPath + "/info/" + filename + ".trashinfo")
+}
+
+func existsTrashFile(trashPath string, filename string) bool {
+	return exists(trashPath + "/files/" + filename) && exists(trashPath + "/info/" + filename + ".trashinfo")
+}
 
 func initHomeEnvironment() {
 	fs.MkdirAll("/home/user/.local/share/Trash", os.ModeDir)
