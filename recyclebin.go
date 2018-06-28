@@ -43,7 +43,7 @@ func RestoreFromTrash(filename string) bool {
 func readTrashInfo(trashInfoFile string) (trashInfo, error) {
 	file, err := os.Open(trashInfoFile)
 	if err != nil {
-		return err
+		return trashInfo{}, err
 	}
 
 	reader := bufio.NewReader(file)
