@@ -61,7 +61,7 @@ func createTrashFile(filename string) {
 }
 
 func existsTrashFile(trashPath string, filename string) bool {
-	return exists(trashPath + "/files/" + filename) && exists(trashPath + "/info/" + filename + ".trashinfo")
+	return exists(trashPath+"/files/"+filename) && exists(trashPath+"/info/"+filename+".trashinfo")
 }
 
 func initHomeEnvironment() {
