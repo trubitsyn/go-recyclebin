@@ -64,7 +64,13 @@ func readTrashInfo(trashInfoFile string) (trashInfo, error) {
 }
 
 // DeleteFromTrash permanently deletes file from trash.
-func DeleteFromTrash(filename string) {
+func DeleteFromTrash(filename string) error {
+	trashPath := ""
+	err := os.Remove(trashPath + "/files/" + filename)
+	if err != nil {
+		return err
+	}
+	return os.Remove(trashPath + "/info/" + filename + ".trashinfo")
 }
 
 // EmptyTrash empties the trash.
