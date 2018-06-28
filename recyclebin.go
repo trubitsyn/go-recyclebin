@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"path"
+	"bufio"
 )
 
 // MoveToTrash moves file to trash.
@@ -29,7 +30,37 @@ func MoveToTrash(filepath string) error {
 }
 
 // RestoreFromTrash restores file from trash.
-func RestoreFromTrash(filename string) {
+func RestoreFromTrash(filename string) bool {
+	trashInfoFile := filename + ".trashinfo"
+	trashInfo, err := readTrashInfo(trashInfoFile)
+	if err != nil {
+		return false
+	}
+	deletedFilePath := "/files/" + filename
+	return os.Rename(deletedFilePath, trashInfo.Path) == nil
+}
+
+func readTrashInfo(trashInfoFile string) (trashInfo, error) {
+	file, err := os.Open(trashInfoFile)
+	if err != nil {
+		return err
+	}
+
+	reader := bufio.NewReader(file)
+	headerPair, _, _ := reader.ReadLine()
+	pathPair, _, _ := reader.ReadLine()
+	deletionDatePair, _, _ := reader.ReadLine()
+
+	header := strings.Split(string(headerPair), "=")[1]
+
+	if header != "[Trash Info]" {
+		return trashInfo{}, errors.New(".trashinfo file is not valid")
+	}
+
+	path := strings.Split(string(pathPair), "=")[1]
+	deletionDate := strings.Split(string(deletionDatePair), "=")[1]
+
+	return trashInfo{path, deletionDate}, nil
 }
 
 // DeleteFromTrash permanently deletes file from trash.
