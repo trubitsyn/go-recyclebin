@@ -20,7 +20,10 @@ func main() {
 ```
 
 ## Testing
-`go test github.com/trubitsyn/recyclebin`
+```
+go get -t github.com/trubitsyn/recyclebin
+go test github.com/trubitsyn/recyclebin
+```
 
 ## LICENSE
 ```
