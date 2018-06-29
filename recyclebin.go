@@ -30,14 +30,14 @@ func MoveToTrash(filepath string) error {
 }
 
 // RestoreFromTrash restores file from trash.
-func RestoreFromTrash(filename string) bool {
+func RestoreFromTrash(filename string) error {
 	trashInfoFile := filename + ".trashinfo"
 	trashInfo, err := readTrashInfo(trashInfoFile)
 	if err != nil {
-		return false
+		return err
 	}
 	deletedFilePath := "/files/" + filename
-	return os.Rename(deletedFilePath, trashInfo.Path) == nil
+	return os.Rename(deletedFilePath, trashInfo.Path)
 }
 
 func readTrashInfo(trashInfoFile string) (trashInfo, error) {
@@ -74,9 +74,10 @@ func DeleteFromTrash(filename string) error {
 }
 
 // EmptyTrash empties the trash.
-func EmptyTrash() {
-	homeTrashPath, _ := getHomeTrashDirectory()
+func EmptyTrash() error  {
+	homeTrashPath, err := getHomeTrashDirectory()
 	emptyTrash(homeTrashPath)
+	return err
 }
 
 type trashInfo struct {

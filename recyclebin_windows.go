@@ -12,14 +12,17 @@ func MoveToTrash(filepath string) error {
 	C.move_to_trash(filepath)
 }
 
-func RestoreFromTrash(filename string) {
+func RestoreFromTrash(filename string) error {
 	C.restore_from_trash(filename)
+	return nil
 }
 
-func DeleteFromTrash(filename string) {
+func DeleteFromTrash(filename string) error {
 	C.delete_from_trash(filename)
+	return nil
 }
 
-func EmptyTrash() {
+func EmptyTrash() error {
 	C.empty_trash()
+	return nil
 }

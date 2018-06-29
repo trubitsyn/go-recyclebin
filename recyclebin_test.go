@@ -16,9 +16,9 @@ func TestMoveToTrash(t *testing.T) {
 	path := "/home/user/file"
 	trashPath := "/home/user/.local/share/Trash"
 	initHomeEnvironment()
-	MoveToTrash("/home/user/file")
+	err := MoveToTrash("/home/user/file")
 
-	success := !exists(path) && exists(trashPath+"/files/file") && exists(trashPath+"/info/file.trashinfo")
+	success := err == nil && !exists(path) && exists(trashPath+"/files/file") && exists(trashPath+"/info/file.trashinfo")
 	if !success {
 		t.Error("file has not been moved to trash")
 	}
@@ -31,9 +31,9 @@ func TestDeleteFromTrash(t *testing.T) {
 	fs.Create(trashPath + "/files/file")
 	fs.MkdirAll(trashPath+"/info", os.ModeDir)
 	fs.Create(trashPath + "/info/file.trashinfo")
-	DeleteFromTrash("file")
+	err := DeleteFromTrash("file")
 
-	success := !exists(trashPath + "/files/file") && !exists(trashPath + "/info/file.trashinfo")
+	success := err == nil && !exists(trashPath + "/files/file") && !exists(trashPath + "/info/file.trashinfo")
 	if !success {
 		t.Error("file has not been deleted from trash")
 	}
@@ -45,8 +45,8 @@ func TestEmptyTrash(t *testing.T) {
 	trashPath := "/home/user/.local/share/Trash"
 	createTrashFile("script.sh")
 	createTrashFile("lib.so")
-	EmptyTrash()
-	success := !existsTrashFile(trashPath, "script.sh") && !existsTrashFile(trashPath, "lib.so")
+	err := EmptyTrash()
+	success := err == nil && !existsTrashFile(trashPath, "script.sh") && !existsTrashFile(trashPath, "lib.so")
 	if !success {
 		t.Error("trash has not been emptied")
 	}
