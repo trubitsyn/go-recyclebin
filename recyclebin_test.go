@@ -52,6 +52,38 @@ func TestEmptyTrash(t *testing.T) {
 	}
 }
 
+func TestEmptyHomeTrash(t *testing.T) {
+	// TODO
+}
+
+func TestEmptyDeviceTrash(t *testing.T) {
+	// TODO
+}
+
+func TestMoveToHomeTrash(t *testing.T) {
+	// TODO
+}
+
+func TestMoveToDeviceTrash(t *testing.T) {
+	// TODO
+}
+
+func TestRemoveFromHomeTrash(t *testing.T) {
+	// TODO
+}
+
+func TestRemoveFromDeviceTrash(t *testing.T) {
+	// TODO
+}
+
+func TestRestoreFromHomeTrash(t *testing.T) {
+	// TODO
+}
+
+func TestRestoreFromDeviceTrash(t *testing.T) {
+	// TODO
+}
+
 func createTrashFile(filename string) {
 	trashPath := "/home/user/.local/share/Trash"
 	fs.MkdirAll(trashPath+"/files", os.ModeDir)
