@@ -173,3 +173,15 @@ func isExist(path string) bool {
 	dir, err := os.Stat(path)
 	return err == nil && dir.Mode().IsDir()
 }
+
+func buildTrashFilePath(trashInfoFilePath string) (string, error) {
+	trashInfo, err := readTrashInfo(trashInfoFilePath)
+	if err != nil {
+		return "", err
+	}
+	return trashInfo.Path, nil
+}
+
+func buildTrashInfoPath(trashPath string, filename string) string {
+	return trashPath + "/files/" + filename + ".trashinfo"
+}
