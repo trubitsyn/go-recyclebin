@@ -74,7 +74,7 @@ func DeleteFromTrash(filename string) error {
 }
 
 // EmptyTrash empties the trash.
-func EmptyTrash() error  {
+func EmptyTrash() error {
 	homeTrashPath, err := getHomeTrashDirectory()
 	emptyTrash(homeTrashPath)
 	return err
