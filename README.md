@@ -25,6 +25,9 @@ go get -t github.com/trubitsyn/recyclebin
 go test github.com/trubitsyn/recyclebin
 ```
 
+## References
+* [The FreeDesktop.org Trash specification](https://standards.freedesktop.org/trash-spec/trashspec-1.0.html)
+
 ## LICENSE
 ```
 Copyright 2018 Nikola Trubitsyn
