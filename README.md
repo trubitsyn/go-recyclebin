@@ -1,17 +1,17 @@
-# recyclebin [![Build Status](https://travis-ci.org/trubitsyn/recyclebin.svg?branch=master)](https://travis-ci.org/trubitsyn/recyclebin) [![GoDoc](https://godoc.org/github.com/trubitsyn/recyclebin?status.svg)](https://godoc.org/github.com/trubitsyn/recyclebin)
+# recyclebin [![Build Status](https://travis-ci.org/trubitsyn/go-recyclebin.svg?branch=master)](https://travis-ci.org/trubitsyn/go-recyclebin) [![GoDoc](https://godoc.org/github.com/trubitsyn/go-recyclebin?status.svg)](https://godoc.org/github.com/trubitsyn/go-recyclebin)
 Cross-platform way to use Trash or Recycle Bin from Go.
 
 **Currently under development.**
 
 ## Installation
-`go get github.com/trubitsyn/recyclebin`
+`go get github.com/trubitsyn/go-recyclebin`
 
 ## Usage
 ```
 package main
 
 import (
-	"github.com/trubitsyn/recyclebin"
+	"github.com/trubitsyn/go-recyclebin"
 	"fmt"
 )
 
@@ -23,8 +23,8 @@ func main() {
 
 ## Testing
 ```
-go get -t github.com/trubitsyn/recyclebin
-go test github.com/trubitsyn/recyclebin
+go get -t github.com/trubitsyn/go-recyclebin
+go test github.com/trubitsyn/go-recyclebin
 ```
 
 ## References
