@@ -10,30 +10,39 @@ import (
 	"os"
 )
 
-var fs = afero.NewMemMapFs()
+func TestMain(m *testing.M) {
+	setup()
+	ret := m.Run()
+	teardown()
+	os.Exit(ret)
+}
+
+func setup() {
+	fs = afero.NewMemMapFs()
+}
+
+func teardown() {
+	os.Unsetenv("XDG_DATA_HOME")
+}
 
 func TestMoveToTrash(t *testing.T) {
-	path := "/home/user/file"
-	trashPath := "/home/user/.local/share/Trash"
-	initHomeEnvironment()
-	err := MoveToTrash("/home/user/file")
-
-	success := err == nil && !exists(path) && exists(trashPath+"/files/file") && exists(trashPath+"/info/file.trashinfo")
+	trashPath := ".local/share/Trash"
+	filename := "file"
+	fs.Create(filename)
+	err := MoveToTrash(filename)
+	fileExists, _ := afero.Exists(fs, filename)
+	success := err == nil && !fileExists && existsTrashFile(trashPath, filename)
 	if !success {
 		t.Error("file has not been moved to trash")
 	}
 }
 
 func TestDeleteFromTrash(t *testing.T) {
-	initHomeEnvironment()
-	trashPath := "/home/user/.local/share/Trash"
-	fs.MkdirAll(trashPath+"/files", os.ModeDir)
-	fs.Create(trashPath + "/files/file")
-	fs.MkdirAll(trashPath+"/info", os.ModeDir)
-	fs.Create(trashPath + "/info/file.trashinfo")
-	err := DeleteFromTrash("file")
-
-	success := err == nil && !exists(trashPath + "/files/file") && !exists(trashPath + "/info/file.trashinfo")
+	trashPath := ".local/share/Trash"
+	filename := "file"
+	createTrashFile(trashPath, filename)
+	err := DeleteFromTrash(filename)
+	success := err == nil && !existsTrashFile(trashPath, filename)
 	if !success {
 		t.Error("file has not been deleted from trash")
 	}
@@ -42,9 +51,9 @@ func TestDeleteFromTrash(t *testing.T) {
 func TestRestoreFromTrash(t *testing.T) {}
 
 func TestEmptyTrash(t *testing.T) {
-	trashPath := "/home/user/.local/share/Trash"
-	createTrashFile("script.sh")
-	createTrashFile("lib.so")
+	trashPath := ".local/share/Trash"
+	createTrashFile(trashPath, "script.sh")
+	createTrashFile(trashPath, "lib.so")
 	err := EmptyTrash()
 	success := err == nil && !existsTrashFile(trashPath, "script.sh") && !existsTrashFile(trashPath, "lib.so")
 	if !success {
@@ -84,8 +93,7 @@ func TestRestoreFromDeviceTrash(t *testing.T) {
 	// TODO
 }
 
-func createTrashFile(filename string) {
-	trashPath := "/home/user/.local/share/Trash"
+func createTrashFile(trashPath string, filename string) {
 	fs.MkdirAll(trashPath+"/files", os.ModeDir)
 	fs.Create(trashPath + "/files/" + filename)
 	fs.MkdirAll(trashPath+"/info", os.ModeDir)
@@ -93,15 +101,16 @@ func createTrashFile(filename string) {
 }
 
 func existsTrashFile(trashPath string, filename string) bool {
-	return exists(trashPath+"/files/"+filename) && exists(trashPath+"/info/"+filename+".trashinfo")
+	hasFile, _ := afero.Exists(fs, trashPath+"/files/"+filename)
+	hasTrashInfo, _ := afero.Exists(fs, trashPath+"/info/"+filename+".trashinfo")
+	return hasFile && hasTrashInfo
 }
 
 func initHomeEnvironment() {
+	os.Setenv("XDG_DATA_HOME", "/home/user")
 	fs.MkdirAll("/home/user/.local/share/Trash", os.ModeDir)
-	fs.Create("/home/user/file")
 }
 
-func exists(path string) bool {
-	dir, err := fs.Stat(path)
-	return err == nil && dir.Mode().IsDir()
+func deinitHomeEnvironment() {
+	os.Unsetenv("XDG_DATA_HOME")
 }

@@ -13,7 +13,10 @@ import (
 	"strings"
 	"path"
 	"bufio"
+	"github.com/spf13/afero"
 )
+
+var fs = afero.NewOsFs()
 
 // MoveToTrash moves file to trash.
 func MoveToTrash(filepath string) error {
@@ -26,7 +29,7 @@ func MoveToTrash(filepath string) error {
 	if isExist(trashedFilename) {
 		trashedFilename = generateNewFilename(trashedFilename)
 	}
-	return os.Rename(filepath, trashedFilename)
+	return fs.Rename(filepath, trashedFilename)
 }
 
 // RestoreFromTrash restores file from trash.
@@ -37,11 +40,11 @@ func RestoreFromTrash(filename string) error {
 		return err
 	}
 	deletedFilePath := "/files/" + filename
-	return os.Rename(deletedFilePath, trashInfo.Path)
+	return fs.Rename(deletedFilePath, trashInfo.Path)
 }
 
 func readTrashInfo(trashInfoFile string) (trashInfo, error) {
-	file, err := os.Open(trashInfoFile)
+	file, err := fs.Open(trashInfoFile)
 	if err != nil {
 		return trashInfo{}, err
 	}
@@ -66,11 +69,11 @@ func readTrashInfo(trashInfoFile string) (trashInfo, error) {
 // DeleteFromTrash permanently deletes file from trash.
 func DeleteFromTrash(filename string) error {
 	trashPath := ""
-	err := os.Remove(trashPath + "/files/" + filename)
+	err := fs.Remove(trashPath + "/files/" + filename)
 	if err != nil {
 		return err
 	}
-	return os.Remove(trashPath + "/info/" + filename + ".trashinfo")
+	return fs.Remove(trashPath + "/info/" + filename + ".trashinfo")
 }
 
 // EmptyTrash empties the trash.
@@ -126,7 +129,7 @@ func getDeviceTrashDirectory(partitionRootPath string) (string, error) {
 	topTrashPath := partitionRootPath + "/.Trash"
 	if !isExist(topTrashPath) {
 		topTrashUidPath := ".Trash-" + strconv.Itoa(uid)
-		err := os.Mkdir(topTrashUidPath, os.ModeDir)
+		err := fs.Mkdir(topTrashUidPath, os.ModeDir)
 		if err != nil {
 			return "", err
 		}
@@ -139,7 +142,7 @@ func getDeviceTrashDirectory(partitionRootPath string) (string, error) {
 
 	uidTrashPath := topTrashPath + strconv.Itoa(uid)
 	if !isExist(uidTrashPath) {
-		err := os.Mkdir(uidTrashPath, os.ModeDir)
+		err := fs.Mkdir(uidTrashPath, os.ModeDir)
 		if err != nil {
 			return "", err
 		}
@@ -161,17 +164,17 @@ func generateNewFilename(existingFilename string) string {
 }
 
 func emptyTrash(trashPath string) {
-	os.RemoveAll(trashPath + "/files")
-	os.RemoveAll(trashPath + "/info")
+	fs.RemoveAll(trashPath + "/files")
+	fs.RemoveAll(trashPath + "/info")
 }
 
 func isSymlink(path string) bool {
-	file, err := os.Stat(path)
+	file, err := fs.Stat(path)
 	return err != nil || file.Mode() != os.ModeSymlink
 }
 
 func isExist(path string) bool {
-	dir, err := os.Stat(path)
+	dir, err := fs.Stat(path)
 	return err == nil && dir.Mode().IsDir()
 }
 
