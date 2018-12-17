@@ -5,9 +5,9 @@
 package recyclebin
 
 import (
-	"testing"
 	"github.com/spf13/afero"
 	"os"
+	"testing"
 )
 
 func TestMain(m *testing.M) {
@@ -31,7 +31,8 @@ func TestMoveToTrash(t *testing.T) {
 	fs.Create(filename)
 	err := MoveToTrash(filename)
 	fileExists, _ := afero.Exists(fs, filename)
-	success := err == nil && !fileExists && existsTrashFile(trashPath, filename)
+	trashedFilename := getTrashedFilename(trashPath, filename)
+	success := err == nil && !fileExists && existsTrashFile(trashPath, trashedFilename)
 	if !success {
 		t.Error("file has not been moved to trash")
 	}

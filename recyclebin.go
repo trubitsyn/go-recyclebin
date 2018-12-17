@@ -6,14 +6,15 @@
 package recyclebin
 
 import (
+	"bufio"
 	"errors"
+	"github.com/spf13/afero"
 	"os"
+	"path"
 	fpath "path/filepath"
 	"strconv"
 	"strings"
-	"path"
-	"bufio"
-	"github.com/spf13/afero"
+	"time"
 )
 
 var fs = afero.NewOsFs()
@@ -25,11 +26,23 @@ func MoveToTrash(filepath string) error {
 		return err
 	}
 	_, filename := path.Split(filepath)
-	trashedFilename := trashPath + "/files/" + filename
-	if isExist(trashedFilename) {
+	fs.MkdirAll(trashPath+"/files", os.ModeDir)
+	trashedFilename := getTrashedFilename(trashPath, filename)
+	err = fs.Rename(filepath, trashPath+"/files/"+trashedFilename)
+	if err != nil {
+		return err
+	}
+	err = writeTrashInfo(trashPath, filepath, trashedFilename)
+	return err
+}
+
+func getTrashedFilename(trashPath string, filename string) string {
+	trashedFilename := filename
+	isDuplicateFilename, _ := afero.Exists(fs, trashPath+"/files/"+trashedFilename)
+	if isDuplicateFilename {
 		trashedFilename = generateNewFilename(trashedFilename)
 	}
-	return fs.Rename(filepath, trashedFilename)
+	return trashedFilename
 }
 
 // RestoreFromTrash restores file from trash.
@@ -66,10 +79,35 @@ func readTrashInfo(trashInfoFile string) (trashInfo, error) {
 	return trashInfo{path, deletionDate}, nil
 }
 
+func writeTrashInfo(trashPath string, filepath string, trashedFilename string) error {
+	f, err := fs.Create(trashPath + "/info/" + trashedFilename + ".trashinfo")
+	if err != nil {
+		return err
+	}
+	_, err = f.WriteString("[Trash Info]\n")
+	if err != nil {
+		return err
+	}
+	deletionDate := time.Now().Format("2006-01-02T15:04:05")
+	_, err = f.WriteString("Path=" + filepath + "\n")
+	if err != nil {
+		return err
+	}
+	_, err = f.WriteString("DeletionDate=" + deletionDate + "\n")
+	if err != nil {
+		return err
+	}
+	err = f.Close()
+	return err
+}
+
 // DeleteFromTrash permanently deletes file from trash.
 func DeleteFromTrash(filename string) error {
-	trashPath := ""
-	err := fs.Remove(trashPath + "/files/" + filename)
+	trashPath, err := getTrashDirectory(filename)
+	if err != nil {
+		return err
+	}
+	err = fs.Remove(trashPath + "/files/" + filename)
 	if err != nil {
 		return err
 	}
@@ -110,10 +148,12 @@ func isExternalDevice(filepath string) bool {
 
 func getHomeTrashDirectory() (string, error) {
 	homeTrashPath := getDataHomeDirectory() + "/Trash"
-	if isExist(homeTrashPath) {
+	hasHomeTrash, _ := afero.DirExists(fs, homeTrashPath)
+	if hasHomeTrash {
 		return homeTrashPath, nil
 	}
-	return "", errors.New("home trash directory does not exist")
+	err := fs.MkdirAll(homeTrashPath, os.ModeDir)
+	return homeTrashPath, err
 }
 
 func getDataHomeDirectory() string {
@@ -127,7 +167,8 @@ func getDataHomeDirectory() string {
 func getDeviceTrashDirectory(partitionRootPath string) (string, error) {
 	uid := os.Getuid()
 	topTrashPath := partitionRootPath + "/.Trash"
-	if !isExist(topTrashPath) {
+	hasTrash, _ := afero.DirExists(fs, topTrashPath)
+	if !hasTrash {
 		topTrashUidPath := ".Trash-" + strconv.Itoa(uid)
 		err := fs.Mkdir(topTrashUidPath, os.ModeDir)
 		if err != nil {
@@ -141,7 +182,8 @@ func getDeviceTrashDirectory(partitionRootPath string) (string, error) {
 	}
 
 	uidTrashPath := topTrashPath + strconv.Itoa(uid)
-	if !isExist(uidTrashPath) {
+	hasUidTrash, _ := afero.DirExists(fs, uidTrashPath)
+	if !hasUidTrash {
 		err := fs.Mkdir(uidTrashPath, os.ModeDir)
 		if err != nil {
 			return "", err
@@ -156,7 +198,8 @@ func generateNewFilename(existingFilename string) string {
 	newFilename := existingFilename
 	index := -1
 
-	for index == -1 || isExist(newFilename) {
+	isDuplicateFilename, _ := afero.Exists(fs, newFilename)
+	for index == -1 || isDuplicateFilename {
 		index += 1
 		newFilename = bareName + strconv.Itoa(index) + extension
 	}
@@ -171,11 +214,6 @@ func emptyTrash(trashPath string) {
 func isSymlink(path string) bool {
 	file, err := fs.Stat(path)
 	return err != nil || file.Mode() != os.ModeSymlink
-}
-
-func isExist(path string) bool {
-	dir, err := fs.Stat(path)
-	return err == nil && dir.Mode().IsDir()
 }
 
 func buildTrashFilePath(trashInfoFilePath string) (string, error) {
