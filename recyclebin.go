@@ -15,6 +15,5 @@ type RecycleBin interface {
 	Recycle(filename string) error
 	Restore(trashFilename string) error
 	Remove(trashFilename string) error
-	//ListFiles(func(info TrashInfo))
 	Empty() error
 }
