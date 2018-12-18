@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-type UnixRecycleBin struct {
+type unixRecycleBin struct {
 	Path string
 }
 
 func NewRecycleBin(location string) RecycleBin {
-	bin := new(UnixRecycleBin)
+	bin := new(unixRecycleBin)
 	bin.Path = location
 	return bin
 }
@@ -30,7 +30,7 @@ func ForLocation(location string) (RecycleBin, error) {
 }
 
 // Recycle moves file to trash.
-func (bin UnixRecycleBin) Recycle(filepath string) error {
+func (bin unixRecycleBin) Recycle(filepath string) error {
 	_, filename := path.Split(filepath)
 	fs.MkdirAll(bin.Path+"/files", os.ModeDir)
 	trashedFilename := getTrashedFilename(bin.Path, filename)
@@ -43,7 +43,7 @@ func (bin UnixRecycleBin) Recycle(filepath string) error {
 }
 
 // Restore restores file from trash.
-func (bin UnixRecycleBin) Restore(trashFilename string) error {
+func (bin unixRecycleBin) Restore(trashFilename string) error {
 	trashInfoFile := trashFilename + ".trashinfo"
 	trashInfo, err := readTrashInfo(trashInfoFile)
 	if err != nil {
@@ -55,7 +55,7 @@ func (bin UnixRecycleBin) Restore(trashFilename string) error {
 }
 
 // Remove permanently deletes file from trash.
-func (bin UnixRecycleBin) Remove(trashFilename string) error {
+func (bin unixRecycleBin) Remove(trashFilename string) error {
 	err := fs.Remove(bin.Path + "/files/" + trashFilename)
 	if err != nil {
 		return err
@@ -65,7 +65,7 @@ func (bin UnixRecycleBin) Remove(trashFilename string) error {
 }
 
 // Empty empties the trash.
-func (bin UnixRecycleBin) Empty() error {
+func (bin unixRecycleBin) Empty() error {
 	err := fs.RemoveAll(bin.Path + "/files")
 	if err != nil {
 		return err
