@@ -80,17 +80,17 @@ func (bin unixRecycleBin) Empty() error {
 func getTrashDirectory(filepath string) (string, error) {
 	if isExternalDevice(filepath) {
 		deviceTrashPath, err := getDeviceTrashDirectory(filepath)
-		if err == nil {
-			return deviceTrashPath, nil
+		if err != nil {
+			return "", err
 		}
-		return "", err
+		return deviceTrashPath, nil
 	}
 
 	homeTrashPath, err := getHomeTrashDirectory()
-	if err == nil {
-		return homeTrashPath, nil
+	if err != nil {
+		return "", errors.New("cannot find or create any trash directory")
 	}
-	return "", errors.New("cannot find or create any trash directory")
+	return homeTrashPath, nil
 }
 
 func isExternalDevice(filepath string) bool {
