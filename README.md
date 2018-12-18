@@ -16,7 +16,16 @@ import (
 )
 
 func main() {
-	recyclebin.EmptyTrash()
+    bin, err := recyclebin.ForLocation("/home/user")
+    if err != nil {
+        return
+    }
+    
+    err = bin.Empty()
+	if err != nil {
+	    return
+	}
+	
 	fmt.Println("Trash is empty now.")
 }
 ```
