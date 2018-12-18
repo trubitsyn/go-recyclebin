@@ -22,11 +22,10 @@ func main() {
     }
     
     err = bin.Empty()
-	if err != nil {
-	    return
-	}
-	
-	fmt.Println("Trash is empty now.")
+    if err != nil {
+    	return
+    }
+    fmt.Println("Trash is empty now.")
 }
 ```
 
