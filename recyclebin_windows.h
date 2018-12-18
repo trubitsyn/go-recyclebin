@@ -5,12 +5,12 @@
 #ifndef RECYCLEBIN_H
 #define RECYCLEBIN_H
 
-void move_to_trash(char *filename);
+void move_to_trash(const char *filename);
 
-void restore_from_trash(char *filename);
+void restore_from_trash(const char *filename);
 
-void delete_from_trash(char *filename);
+void delete_from_trash(const char *filename);
 
-void empty_trash();
+void empty_trash(void);
 
 #endif

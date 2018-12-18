@@ -8,21 +8,24 @@ package recyclebin
 // #include "recyclebin.h"
 import "C"
 
-func MoveToTrash(filepath string) error {
+type WindowsRecycleBin struct {
+}
+
+func (bin WindowsRecycleBin) Recycle(filepath string) {
 	C.move_to_trash(filepath)
 }
 
-func RestoreFromTrash(filename string) error {
-	C.restore_from_trash(filename)
+func (bin WindowsRecycleBin) Restore(trashFilename string) error {
+	C.restore_from_trash(trashFilename)
 	return nil
 }
 
-func DeleteFromTrash(filename string) error {
-	C.delete_from_trash(filename)
+func (bin WindowsRecycleBin) Delete(trashFilename string) error {
+	C.delete_from_trash(trashFilename)
 	return nil
 }
 
-func EmptyTrash() error {
+func (bin WindowsRecycleBin) Empty() error {
 	C.empty_trash()
 	return nil
 }

@@ -3,24 +3,56 @@
 // license that can be found in the LICENSE file.
 
 #include <windows.h>
+#include <Shobjidl.h>
+#include <VersionHelpers.h>
+
 #include "recyclebin_windows.h"
 
-void move_to_trash(char *filename)
+void move_to_trash(const char *filename)
 {
-	SHFILEOPSTRUCT operation;
-
-	SHFileOperation(&operation);
+    if (IsWindowsVistaOrGreater())
+    {
+        // IFileOperation
+    }
+    else
+    {
+        SHFILEOPSTRUCT operation;
+    	SHFileOperation(&operation);
+    }
 }
 
-void restore_from_trash(char *filename)
+void restore_from_trash(const char *filename)
 {
+    if (IsWindowsVistaOrGreater())
+    {
+        // IFileOperation
+    }
+    else
+    {
+        // SHFILEOPSTRUCT
+    }
 }
 
-void delete_from_trash(char *filename)
+void delete_from_trash(const char *filename)
 {
+    if (IsWindowsVistaOrGreater())
+    {
+        // IFileOperation
+    }
+    else
+    {
+        // SHFILEOPSTRUCT
+    }
 }
 
-void empty_trash()
+void empty_trash(void)
 {
-	SHEmptyRecycleBin(NULL, NULL, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
+    if (IsWindowsVistaOrGreater())
+    {
+        // IFileOperation
+    }
+    else
+    {
+        SHEmptyRecycleBin(NULL, NULL, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
+    }
 }

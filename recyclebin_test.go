@@ -27,9 +27,23 @@ func teardown() {
 
 func TestMoveToTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
+	bin, err := ForLocation(trashPath)
+	if err != nil {
+		t.Error("unable to create recycle bin.")
+	}
 	filename := "file"
-	fs.Create(filename)
-	err := MoveToTrash(filename)
+	f, err := fs.Create(filename)
+	if err != nil {
+		t.Error("unable to create test file for removal.")
+	}
+	err = f.Close()
+	if err != nil {
+		t.Error("unable to close test file.")
+	}
+	err = bin.Recycle(filename)
+	if err != nil {
+		t.Error("unable to recycle test file.")
+	}
 	fileExists, _ := afero.Exists(fs, filename)
 	trashedFilename := getTrashedFilename(trashPath, filename)
 	success := err == nil && !fileExists && existsTrashFile(trashPath, trashedFilename)
@@ -40,9 +54,13 @@ func TestMoveToTrash(t *testing.T) {
 
 func TestDeleteFromTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
+	bin, err := ForLocation(trashPath)
+	if err != nil {
+		t.Error("unable to create recycle bin.")
+	}
 	filename := "file"
 	createTrashFile(trashPath, filename)
-	err := DeleteFromTrash(filename)
+	err = bin.Remove(filename)
 	success := err == nil && !existsTrashFile(trashPath, filename)
 	if !success {
 		t.Error("file has not been deleted from trash")
@@ -53,9 +71,13 @@ func TestRestoreFromTrash(t *testing.T) {}
 
 func TestEmptyTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
+	bin, err := ForLocation(trashPath)
+	if err != nil {
+		t.Error("unable to create recycle bin.")
+	}
 	createTrashFile(trashPath, "script.sh")
 	createTrashFile(trashPath, "lib.so")
-	err := EmptyTrash()
+	err = bin.Empty()
 	success := err == nil && !existsTrashFile(trashPath, "script.sh") && !existsTrashFile(trashPath, "lib.so")
 	if !success {
 		t.Error("trash has not been emptied")
