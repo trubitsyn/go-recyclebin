@@ -115,7 +115,8 @@ func getHomeTrashDirectory() (string, error) {
 func getDataHomeDirectory() string {
 	XDG_DATA_HOME := os.Getenv("XDG_DATA_HOME")
 	if XDG_DATA_HOME == "" {
-		return ".local/share"
+		HOME := os.Getenv("HOME")
+		return HOME + "/.local/share"
 	}
 	return XDG_DATA_HOME
 }
