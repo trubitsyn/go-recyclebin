@@ -44,11 +44,16 @@ func TestMoveToTrash(t *testing.T) {
 	if err != nil {
 		t.Error("unable to recycle test file.")
 	}
-	fileExists, _ := afero.Exists(fs, filename)
-	trashedFilename := getTrashedFilename(trashPath, filename)
-	success := err == nil && !fileExists && existsTrashFile(trashPath, trashedFilename)
-	if !success {
+	fileExists, err := afero.Exists(fs, filename)
+	if err != nil {
+		t.Error("unable to check if file is still not deleted")
+	}
+	if fileExists {
 		t.Error("file has not been moved to trash")
+	}
+	trashedFilename := getTrashedFilename(trashPath, filename)
+	if !existsTrashFile(trashPath, trashedFilename) {
+		t.Error("trash file has not been created")
 	}
 }
 
