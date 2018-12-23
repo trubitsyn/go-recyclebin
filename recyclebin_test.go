@@ -89,10 +89,10 @@ func TestRestoreFromTrash(t *testing.T) {
 	if err != nil {
 		t.Error("unable to restore file '" + trashFilename + "'")
 	}
-	if exists, _ := afero.Exists(fs, trashPath+"/files/"+trashFilename); exists {
+	if exists, _ := afero.Exists(fs, buildTrashFilePath(trashPath, trashFilename)); exists {
 		t.Error("trash still contains the file")
 	}
-	if exists, _ := afero.Exists(fs, trashPath+"/info/"+trashFilename+".trashinfo"); exists {
+	if exists, _ := afero.Exists(fs, buildTrashInfoPath(trashPath, trashFilename)); exists {
 		t.Error("trash still contains trashinfo file")
 	}
 	if exists, _ := afero.Exists(fs, trashFilename); !exists {
@@ -125,7 +125,7 @@ func createTrashFiles(trashPath string, filename string) error {
 	if err != nil {
 		return err
 	}
-	f, err := fs.Create(trashPath + "/files/" + filename)
+	f, err := fs.Create(buildTrashFilePath(trashPath, filename))
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func createTrashFiles(trashPath string, filename string) error {
 	if err != nil {
 		return err
 	}
-	f, err = fs.Create(trashPath + "/info/" + filename + ".trashinfo")
+	f, err = fs.Create(buildTrashInfoPath(trashPath, filename))
 	if err != nil {
 		return err
 	}
@@ -146,12 +146,12 @@ func createTrashFiles(trashPath string, filename string) error {
 }
 
 func existsTrashFile(trashPath string, filename string) bool {
-	hasFile, _ := afero.Exists(fs, trashPath+"/files/"+filename)
+	hasFile, _ := afero.Exists(fs, buildTrashInfoPath(trashPath, filename))
 	return hasFile
 }
 
 func existsTrashInfo(trashPath string, filename string) bool {
-	hasTrashInfo, _ := afero.Exists(fs, trashPath+"/info/"+filename+".trashinfo")
+	hasTrashInfo, _ := afero.Exists(fs, buildTrashInfoPath(trashPath, filename))
 	return hasTrashInfo
 }
 

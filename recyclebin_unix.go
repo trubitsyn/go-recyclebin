@@ -33,7 +33,7 @@ func (bin unixRecycleBin) Recycle(filepath string) error {
 		return err
 	}
 	trashedFilename := getTrashedFilename(bin.Path, filename)
-	err = fs.Rename(filepath, bin.Path+"/files/"+trashedFilename)
+	err = fs.Rename(filepath, buildTrashFilePath(bin.Path, trashedFilename))
 	if err != nil {
 		return err
 	}
@@ -43,27 +43,26 @@ func (bin unixRecycleBin) Recycle(filepath string) error {
 
 // Restore restores file from trash.
 func (bin unixRecycleBin) Restore(trashFilename string) error {
-	trashInfoFile := trashFilename + ".trashinfo"
-	trashInfo, err := readTrashInfo(bin.Path + "/info/" + trashInfoFile)
+	trashInfo, err := readTrashInfo(buildTrashInfoPath(bin.Path, trashFilename))
 	if err != nil {
 		return err
 	}
-	deletedFilePath := bin.Path + "/files/" + trashFilename
+	deletedFilePath := buildTrashFilePath(bin.Path, trashFilename)
 	err = fs.Rename(deletedFilePath, trashInfo.Path)
 	if err != nil {
 		return err
 	}
-	err = fs.Remove(bin.Path + "/info/" + trashInfoFile)
+	err = fs.Remove(buildTrashInfoPath(bin.Path, trashFilename))
 	return err
 }
 
 // Remove permanently deletes file from trash.
 func (bin unixRecycleBin) Remove(trashFilename string) error {
-	err := fs.Remove(bin.Path + "/files/" + trashFilename)
+	err := fs.Remove(buildTrashFilePath(bin.Path, trashFilename))
 	if err != nil {
 		return err
 	}
-	err = fs.Remove(bin.Path + "/info/" + trashFilename + ".trashinfo")
+	err = fs.Remove(buildTrashInfoPath(bin.Path, trashFilename))
 	return err
 }
 

@@ -36,7 +36,7 @@ func readTrashInfo(trashInfoFile string) (TrashInfo, error) {
 }
 
 func writeTrashInfo(trashPath string, filepath string, trashedFilename string) error {
-	f, err := fs.Create(trashPath + "/info/" + trashedFilename + ".trashinfo")
+	f, err := fs.Create(buildTrashInfoPath(trashPath, trashedFilename))
 	if err != nil {
 		return err
 	}
@@ -58,5 +58,5 @@ func writeTrashInfo(trashPath string, filepath string, trashedFilename string) e
 }
 
 func buildTrashInfoPath(trashPath string, filename string) string {
-	return trashPath + "/files/" + filename + ".trashinfo"
+	return trashPath + "/info/" + filename + ".trashinfo"
 }
