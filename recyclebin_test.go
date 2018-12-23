@@ -61,8 +61,11 @@ func TestDeleteFromTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
 	bin := NewRecycleBin(trashPath)
 	filename := "file"
-	createTrashFile(trashPath, filename)
-	err := bin.Remove(filename)
+	err := createTrashFiles(trashPath, filename)
+	if err != nil {
+		t.Error("unable to create test trash files")
+	}
+	err = bin.Remove(filename)
 	if err != nil {
 		t.Error("unable to remove file")
 	}
@@ -74,25 +77,72 @@ func TestDeleteFromTrash(t *testing.T) {
 	}
 }
 
-func TestRestoreFromTrash(t *testing.T) {}
+func TestRestoreFromTrash(t *testing.T) {
+	trashPath := ".local/share/Trash"
+	bin := NewRecycleBin(trashPath)
+	trashFilename := "file"
+	err := createTrashFiles(trashPath, trashFilename)
+	if err != nil {
+		t.Error("unable to create test trash files")
+	}
+	err = bin.Restore(trashFilename)
+	if err != nil {
+		t.Error("unable to restore file '" + trashFilename + "'")
+	}
+	if exists, _ := afero.Exists(fs, trashPath+"/files/"+trashFilename); exists {
+		t.Error("trash still contains the file")
+	}
+	if exists, _ := afero.Exists(fs, trashPath+"/info/"+trashFilename+".trashinfo"); exists {
+		t.Error("trash still contains trashinfo file")
+	}
+	if exists, _ := afero.Exists(fs, trashFilename); !exists {
+		t.Error("file has not been restored")
+	}
+}
 
 func TestEmptyTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
 	bin := NewRecycleBin(trashPath)
-	createTrashFile(trashPath, "script.sh")
-	createTrashFile(trashPath, "lib.so")
-	err := bin.Empty()
-	success := err == nil && !existsTrashFile(trashPath, "script.sh") && !existsTrashFile(trashPath, "lib.so")
-	if !success {
-		t.Error("trash has not been emptied")
+	err := createTrashFiles(trashPath, "script.sh")
+	if err != nil {
+		t.Error("unable to create test trash files")
+	}
+	err = createTrashFiles(trashPath, "lib.so")
+	if err != nil {
+		t.Error("unable to create test trash files")
+	}
+	err = bin.Empty()
+	if err != nil {
+		t.Error("unable to empty the trash")
+	}
+	if existsTrashFile(trashPath, "script.sh") || existsTrashFile(trashPath, "lib.so") {
+		t.Error("trash files were not deleted")
 	}
 }
 
-func createTrashFile(trashPath string, filename string) {
-	fs.MkdirAll(trashPath+"/files", os.ModeDir)
-	fs.Create(trashPath + "/files/" + filename)
-	fs.MkdirAll(trashPath+"/info", os.ModeDir)
-	fs.Create(trashPath + "/info/" + filename + ".trashinfo")
+func createTrashFiles(trashPath string, filename string) error {
+	err := fs.MkdirAll(trashPath+"/files", os.ModeDir)
+	if err != nil {
+		return err
+	}
+	f, err := fs.Create(trashPath + "/files/" + filename)
+	if err != nil {
+		return err
+	}
+	_ = f.Close()
+	err = fs.MkdirAll(trashPath+"/info", os.ModeDir)
+	if err != nil {
+		return err
+	}
+	f, err = fs.Create(trashPath + "/info/" + filename + ".trashinfo")
+	if err != nil {
+		return err
+	}
+	f.WriteString("[Trash Info]\n")
+	f.WriteString("Path=" + filename + "\n")
+	f.WriteString("DeletionDate=2018-10-11\n")
+	_ = f.Close()
+	return nil
 }
 
 func existsTrashFile(trashPath string, filename string) bool {

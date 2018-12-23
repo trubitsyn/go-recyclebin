@@ -50,12 +50,16 @@ func (bin unixRecycleBin) Recycle(filepath string) error {
 // Restore restores file from trash.
 func (bin unixRecycleBin) Restore(trashFilename string) error {
 	trashInfoFile := trashFilename + ".trashinfo"
-	trashInfo, err := readTrashInfo(trashInfoFile)
+	trashInfo, err := readTrashInfo(bin.Path + "/info/" + trashInfoFile)
 	if err != nil {
 		return err
 	}
-	deletedFilePath := "/files/" + trashFilename
+	deletedFilePath := bin.Path + "/files/" + trashFilename
 	err = fs.Rename(deletedFilePath, trashInfo.Path)
+	if err != nil {
+		return err
+	}
+	err = fs.Remove(bin.Path + "/info/" + trashInfoFile)
 	return err
 }
 
@@ -189,13 +193,11 @@ func readTrashInfo(trashInfoFile string) (TrashInfo, error) {
 	}
 
 	reader := bufio.NewReader(file)
-	headerPair, _, _ := reader.ReadLine()
+	header, _, _ := reader.ReadLine()
 	pathPair, _, _ := reader.ReadLine()
 	deletionDatePair, _, _ := reader.ReadLine()
 
-	header := strings.Split(string(headerPair), "=")[1]
-
-	if header != "[Trash Info]" {
+	if string(header) != "[Trash Info]" {
 		return TrashInfo{}, errors.New(".trashinfo file is not valid")
 	}
 
