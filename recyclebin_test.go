@@ -40,6 +40,7 @@ func TestMoveToTrash(t *testing.T) {
 	if err != nil {
 		t.Error("unable to close test file.")
 	}
+	trashedFilename := getTrashedFilename(trashPath, filename)
 	err = bin.Recycle(filename)
 	if err != nil {
 		t.Error("unable to recycle test file.")
@@ -51,9 +52,11 @@ func TestMoveToTrash(t *testing.T) {
 	if fileExists {
 		t.Error("file has not been moved to trash")
 	}
-	trashedFilename := getTrashedFilename(trashPath, filename)
 	if !existsTrashFile(trashPath, trashedFilename) {
-		t.Error("trash file has not been created")
+		t.Error("trash file '" + trashedFilename + "' has not been created")
+	}
+	if !existsTrashInfo(trashPath, trashedFilename) {
+		t.Error("trash info '" + trashedFilename + ".trashinfo' has not been created")
 	}
 }
 
@@ -66,9 +69,14 @@ func TestDeleteFromTrash(t *testing.T) {
 	filename := "file"
 	createTrashFile(trashPath, filename)
 	err = bin.Remove(filename)
-	success := err == nil && !existsTrashFile(trashPath, filename)
-	if !success {
-		t.Error("file has not been deleted from trash")
+	if err != nil {
+		t.Error("unable to remove file")
+	}
+	if existsTrashFile(trashPath, filename) {
+		t.Error("trash file '" + filename + "' has not been removed")
+	}
+	if existsTrashInfo(trashPath, filename) {
+		t.Error("trash info '" + filename + ".trashinfo' has not been removed")
 	}
 }
 
@@ -130,8 +138,12 @@ func createTrashFile(trashPath string, filename string) {
 
 func existsTrashFile(trashPath string, filename string) bool {
 	hasFile, _ := afero.Exists(fs, trashPath+"/files/"+filename)
+	return hasFile
+}
+
+func existsTrashInfo(trashPath string, filename string) bool {
 	hasTrashInfo, _ := afero.Exists(fs, trashPath+"/info/"+filename+".trashinfo")
-	return hasFile && hasTrashInfo
+	return hasTrashInfo
 }
 
 func initHomeEnvironment() {
