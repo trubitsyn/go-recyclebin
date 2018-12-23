@@ -34,9 +34,12 @@ func ForLocation(location string) (RecycleBin, error) {
 // Recycle moves file to trash.
 func (bin unixRecycleBin) Recycle(filepath string) error {
 	_, filename := path.Split(filepath)
-	fs.MkdirAll(bin.Path+"/files", os.ModeDir)
+	err := fs.MkdirAll(bin.Path+"/files", os.ModeDir)
+	if err != nil {
+		return err
+	}
 	trashedFilename := getTrashedFilename(bin.Path, filename)
-	err := fs.Rename(filepath, bin.Path+"/files/"+trashedFilename)
+	err = fs.Rename(filepath, bin.Path+"/files/"+trashedFilename)
 	if err != nil {
 		return err
 	}
