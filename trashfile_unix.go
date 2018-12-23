@@ -10,12 +10,11 @@ import (
 )
 
 func getTrashedFilename(trashPath string, filename string) string {
-	trashedFilename := filename
-	isDuplicateFilename, _ := afero.Exists(fs, buildTrashFilePath(trashPath, trashedFilename))
+	isDuplicateFilename, _ := afero.Exists(fs, buildTrashFilePath(trashPath, filename))
 	if isDuplicateFilename {
-		trashedFilename = generateNewFilename(trashedFilename)
+		filename = generateNewFilename(filename)
 	}
-	return trashedFilename
+	return filename
 }
 
 func generateNewFilename(existingFilename string) string {
