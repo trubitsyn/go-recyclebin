@@ -47,12 +47,5 @@ void delete_from_trash(const char *filename)
 
 void empty_trash(void)
 {
-    if (IsWindowsVistaOrGreater())
-    {
-        // IFileOperation
-    }
-    else
-    {
-        SHEmptyRecycleBin(NULL, NULL, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
-    }
+    SHEmptyRecycleBinW(NULL, NULL, SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND);
 }

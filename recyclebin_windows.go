@@ -5,7 +5,7 @@
 // Package recyclebin implements functions to remove zero-width characters from strings.
 package recyclebin
 
-// #include "recyclebin.h"
+// #include "recyclebin_windows.h"
 import "C"
 
 type windowsRecycleBin struct {
@@ -16,12 +16,12 @@ func (bin windowsRecycleBin) Recycle(filepath string) {
 }
 
 func (bin windowsRecycleBin) Restore(trashFilename string) error {
-	C.restore_from_trash(trashFilename)
+	C.restore_from_trash(C.CString(trashFilename))
 	return nil
 }
 
-func (bin windowsRecycleBin) Delete(trashFilename string) error {
-	C.delete_from_trash(trashFilename)
+func (bin windowsRecycleBin) Remove(trashFilename string) error {
+	C.delete_from_trash(C.CString(trashFilename))
 	return nil
 }
 
