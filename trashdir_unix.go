@@ -81,6 +81,6 @@ func getDeviceTrashDirectory(partitionRootPath string) (string, error) {
 }
 
 func isSymlink(path string) bool {
-	file, err := fs.Stat(path)
-	return err != nil || file.Mode() != os.ModeSymlink
+	file, _ := fs.Stat(path)
+	return file.Mode() == os.ModeSymlink
 }
