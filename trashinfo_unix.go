@@ -14,20 +14,26 @@ import (
 )
 
 type TrashInfo struct {
-	Path         string
-	DeletionDate string
+	TrashInfoMtime int64
+	Path           string
+	DeletionDate   string
 }
 
-func readTrashInfo(trashInfoFile string) (TrashInfo, error) {
-	file, err := fs.Open(trashInfoFile)
+func readTrashInfo(trashInfoPath string) (TrashInfo, error) {
+	file, err := fs.Open(trashInfoPath)
 	if err != nil {
 		return TrashInfo{}, err
 	}
+	scanner := bufio.NewScanner(file)
 
-	reader := bufio.NewReader(file)
-	header, _, _ := reader.ReadLine()
-	pathPair, _, _ := reader.ReadLine()
-	deletionDatePair, _, _ := reader.ReadLine()
+	scanner.Scan()
+	header := scanner.Text()
+
+	scanner.Scan()
+	pathPair := scanner.Text()
+
+	scanner.Scan()
+	deletionDatePair := scanner.Text()
 
 	if string(header) != "[Trash Info]" {
 		return TrashInfo{}, errors.New(".trashinfo file is not valid")
@@ -35,8 +41,11 @@ func readTrashInfo(trashInfoFile string) (TrashInfo, error) {
 
 	path := strings.Split(string(pathPair), "=")[1]
 	deletionDate := strings.Split(string(deletionDatePair), "=")[1]
+	file.Close()
+	info, err := fs.Stat(trashInfoPath)
+	trashInfoMtime := info.ModTime().Unix()
 
-	return TrashInfo{path, deletionDate}, nil
+	return TrashInfo{trashInfoMtime, path, deletionDate}, nil
 }
 
 func writeTrashInfo(trashPath string, filepath string, trashedFilename string) error {
