@@ -77,8 +77,5 @@ func (bin unixRecycleBin) Empty() error {
 		return err
 	}
 	err = fs.RemoveAll(bin.Path + "/info")
-	if err != nil {
-		return err
-	}
 	return err
 }
