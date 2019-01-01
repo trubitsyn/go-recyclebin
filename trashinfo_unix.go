@@ -9,6 +9,7 @@ package recyclebin
 import (
 	"bufio"
 	"errors"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -40,12 +41,16 @@ func readTrashInfo(trashInfoPath string) (TrashInfo, error) {
 	}
 
 	path := strings.Split(string(pathPair), "=")[1]
+	pathUnescaped, err := url.PathUnescape(path)
+	if err != nil {
+		return TrashInfo{}, err
+	}
 	deletionDate := strings.Split(string(deletionDatePair), "=")[1]
 	file.Close()
 	info, err := fs.Stat(trashInfoPath)
 	trashInfoMtime := info.ModTime().Unix()
 
-	return TrashInfo{trashInfoMtime, path, deletionDate}, nil
+	return TrashInfo{trashInfoMtime, pathUnescaped, deletionDate}, nil
 }
 
 func writeTrashInfo(trashPath string, filepath string, trashedFilename string) error {
@@ -58,7 +63,7 @@ func writeTrashInfo(trashPath string, filepath string, trashedFilename string) e
 		return err
 	}
 	deletionDate := time.Now().Format("2006-01-02T15:04:05")
-	_, err = f.WriteString("Path=" + filepath + "\n")
+	_, err = f.WriteString("Path=" + url.PathEscape(filepath) + "\n")
 	if err != nil {
 		return err
 	}
