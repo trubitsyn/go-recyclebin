@@ -47,7 +47,8 @@ func (bin unixRecycleBin) Recycle(filepath string) error {
 
 // Restore restores file from trash.
 func (bin unixRecycleBin) Restore(trashFilename string) error {
-	trashInfo, err := readTrashInfo(buildTrashInfoPath(bin.Path, trashFilename))
+	trashInfoPath := buildTrashInfoPath(bin.Path, trashFilename)
+	trashInfo, err := readTrashInfo(trashInfoPath)
 	if err != nil {
 		return err
 	}
