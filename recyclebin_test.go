@@ -6,6 +6,7 @@ package recyclebin
 
 import (
 	"github.com/spf13/afero"
+	"net/url"
 	"os"
 	"testing"
 )
@@ -54,6 +55,14 @@ func TestMoveToTrash(t *testing.T) {
 	}
 	if !existsTrashInfo(trashPath, trashedFilename) {
 		t.Error("trash info '" + trashedFilename + ".trashinfo' has not been created")
+	}
+	trashInfo, err := readTrashInfo(buildTrashInfoPath(trashPath, trashedFilename))
+	if err != nil {
+		t.Error("trash info ''" + trashedFilename + "'.trashinfo cannot be read")
+	}
+	escapedRealPath := url.PathEscape(filename)
+	if escapedRealPath != trashInfo.Path {
+		t.Error("trash info '" + trashedFilename + "'.trashinfo has invalid Path value")
 	}
 }
 
