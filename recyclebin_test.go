@@ -146,7 +146,7 @@ func createTrashFiles(trashPath string, filename string) error {
 }
 
 func existsTrashFile(trashPath string, filename string) bool {
-	hasFile, _ := afero.Exists(fs, buildTrashInfoPath(trashPath, filename))
+	hasFile, _ := afero.Exists(fs, buildTrashFilePath(trashPath, filename))
 	return hasFile
 }
 
