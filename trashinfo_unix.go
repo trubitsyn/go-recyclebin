@@ -24,6 +24,7 @@ func readTrashInfo(trashInfoPath string) (TrashInfo, error) {
 	if err != nil {
 		return TrashInfo{}, err
 	}
+	defer file.Close()
 	scanner := bufio.NewScanner(file)
 
 	scanner.Scan()
@@ -45,7 +46,6 @@ func readTrashInfo(trashInfoPath string) (TrashInfo, error) {
 		return TrashInfo{}, err
 	}
 	deletionDate := strings.Split(string(deletionDatePair), "=")[1]
-	file.Close()
 	info, err := fs.Stat(trashInfoPath)
 	trashInfoMtime := info.ModTime().Unix()
 
@@ -57,6 +57,7 @@ func writeTrashInfo(trashPath string, filepath string, deletionDate, trashedFile
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	_, err = f.WriteString("[Trash Info]\n")
 	if err != nil {
 		return err
@@ -69,8 +70,7 @@ func writeTrashInfo(trashPath string, filepath string, deletionDate, trashedFile
 	if err != nil {
 		return err
 	}
-	err = f.Close()
-	return err
+	return nil
 }
 
 func buildTrashInfoPath(trashPath string, filename string) string {

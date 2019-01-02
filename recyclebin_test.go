@@ -147,10 +147,12 @@ func createTrashFiles(trashPath string, filename string) error {
 	if err != nil {
 		return err
 	}
-	f.WriteString("[Trash Info]\n")
-	f.WriteString("Path=" + filename + "\n")
-	f.WriteString("DeletionDate=2018-10-11\n")
-	_ = f.Close()
+	defer f.Close()
+	content := "[Trash Info]\n" + "Path=" + filename + "\n" + "DeletionDate=2018-10-11\n"
+	_, err = f.WriteString(content)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
