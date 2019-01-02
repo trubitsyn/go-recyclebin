@@ -13,16 +13,27 @@ import (
 	"strconv"
 )
 
-func getTrashDirectory(filepath string) (string, error) {
+type envStorage interface {
+	Getenv(name string) string
+}
+
+type osEnvStorage int
+
+func (_ osEnvStorage) Getenv(name string) string {
+	return os.Getenv(name)
+}
+
+func getTrashDirectory(filepath string, envStorage envStorage, uid int) (string, error) {
 	if isExternalDevice(filepath) {
-		deviceTrashPath, err := getDeviceTrashDirectory(filepath)
+		deviceTrashPath, err := getDeviceTrashDirectory(filepath, uid)
 		if err != nil {
 			return "", err
 		}
 		return deviceTrashPath, nil
 	}
 
-	homeTrashPath, err := getHomeTrashDirectory()
+	dataHomeDirectory := getDataHomeDirectory(envStorage)
+	homeTrashPath, err := getHomeTrashDirectory(dataHomeDirectory)
 	if err != nil {
 		return "", errors.New("cannot find or create any trash directory")
 	}
@@ -33,8 +44,8 @@ func isExternalDevice(filepath string) bool {
 	return false
 }
 
-func getHomeTrashDirectory() (string, error) {
-	homeTrashPath := getDataHomeDirectory() + "/Trash"
+func getHomeTrashDirectory(dataHomeDirectory string) (string, error) {
+	homeTrashPath := dataHomeDirectory + "/Trash"
 	hasHomeTrash, _ := afero.DirExists(fs, homeTrashPath)
 	if hasHomeTrash {
 		return homeTrashPath, nil
@@ -43,17 +54,16 @@ func getHomeTrashDirectory() (string, error) {
 	return homeTrashPath, err
 }
 
-func getDataHomeDirectory() string {
-	XDG_DATA_HOME := os.Getenv("XDG_DATA_HOME")
+func getDataHomeDirectory(envStorage envStorage) string {
+	XDG_DATA_HOME := envStorage.Getenv("XDG_DATA_HOME")
 	if XDG_DATA_HOME == "" {
-		HOME := os.Getenv("HOME")
+		HOME := envStorage.Getenv("HOME")
 		return HOME + "/.local/share"
 	}
 	return XDG_DATA_HOME
 }
 
-func getDeviceTrashDirectory(partitionRootPath string) (string, error) {
-	uid := os.Getuid()
+func getDeviceTrashDirectory(partitionRootPath string, uid int) (string, error) {
 	topTrashPath := partitionRootPath + "/.Trash"
 	hasTrash, _ := afero.DirExists(fs, topTrashPath)
 	if !hasTrash {

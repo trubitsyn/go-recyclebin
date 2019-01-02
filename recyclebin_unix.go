@@ -9,6 +9,7 @@ package recyclebin
 import (
 	"os"
 	"path"
+	"time"
 )
 
 type unixRecycleBin struct {
@@ -22,7 +23,9 @@ func NewRecycleBin(location string) RecycleBin {
 }
 
 func ForLocation(location string) (RecycleBin, error) {
-	dir, err := getTrashDirectory(location)
+	var envStorage osEnvStorage
+	uid := os.Getuid()
+	dir, err := getTrashDirectory(location, envStorage, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +44,8 @@ func (bin unixRecycleBin) Recycle(filepath string) error {
 	if err != nil {
 		return err
 	}
-	err = writeTrashInfo(bin.Path, filepath, trashedFilename)
+	deletionDate := time.Now().Format("2006-01-02T15:04:05")
+	err = writeTrashInfo(bin.Path, filepath, deletionDate, trashedFilename)
 	return err
 }
 

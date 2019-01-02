@@ -11,7 +11,6 @@ import (
 	"errors"
 	"net/url"
 	"strings"
-	"time"
 )
 
 type TrashInfo struct {
@@ -53,7 +52,7 @@ func readTrashInfo(trashInfoPath string) (TrashInfo, error) {
 	return TrashInfo{trashInfoMtime, pathUnescaped, deletionDate}, nil
 }
 
-func writeTrashInfo(trashPath string, filepath string, trashedFilename string) error {
+func writeTrashInfo(trashPath string, filepath string, deletionDate, trashedFilename string) error {
 	f, err := fs.Create(buildTrashInfoPath(trashPath, trashedFilename))
 	if err != nil {
 		return err
@@ -62,7 +61,6 @@ func writeTrashInfo(trashPath string, filepath string, trashedFilename string) e
 	if err != nil {
 		return err
 	}
-	deletionDate := time.Now().Format("2006-01-02T15:04:05")
 	_, err = f.WriteString("Path=" + url.PathEscape(filepath) + "\n")
 	if err != nil {
 		return err
