@@ -17,7 +17,7 @@ type unixRecycleBin struct {
 }
 
 func NewRecycleBin(location string) RecycleBin {
-	bin := new(unixRecycleBin)
+	var bin unixRecycleBin
 	bin.Path = location
 	return bin
 }
