@@ -58,16 +58,13 @@ func writeTrashInfo(trashPath string, filepath string, deletionDate, trashedFile
 		return err
 	}
 	defer f.Close()
-	_, err = f.WriteString("[Trash Info]\n")
-	if err != nil {
+	if _, err = f.WriteString("[Trash Info]\n"); err != nil {
 		return err
 	}
-	_, err = f.WriteString("Path=" + url.PathEscape(filepath) + "\n")
-	if err != nil {
+	if _, err = f.WriteString("Path=" + url.PathEscape(filepath) + "\n"); err != nil {
 		return err
 	}
-	_, err = f.WriteString("DeletionDate=" + deletionDate + "\n")
-	if err != nil {
+	if _, err = f.WriteString("DeletionDate=" + deletionDate + "\n"); err != nil {
 		return err
 	}
 	return nil

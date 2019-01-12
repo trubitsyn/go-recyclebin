@@ -35,17 +35,15 @@ func ForLocation(location string) (RecycleBin, error) {
 // Recycle moves file to trash.
 func (bin unixRecycleBin) Recycle(filepath string) error {
 	_, filename := path.Split(filepath)
-	err := fs.MkdirAll(bin.Path+"/files", os.ModeDir)
-	if err != nil {
+	if err := fs.MkdirAll(bin.Path+"/files", os.ModeDir); err != nil {
 		return err
 	}
 	trashedFilename := getTrashedFilename(bin.Path, filename)
-	err = fs.Rename(filepath, buildTrashFilePath(bin.Path, trashedFilename))
-	if err != nil {
+	if err := fs.Rename(filepath, buildTrashFilePath(bin.Path, trashedFilename)); err != nil {
 		return err
 	}
 	deletionDate := time.Now().Format("2006-01-02T15:04:05")
-	err = writeTrashInfo(bin.Path, filepath, deletionDate, trashedFilename)
+	err := writeTrashInfo(bin.Path, filepath, deletionDate, trashedFilename)
 	return err
 }
 
@@ -57,8 +55,7 @@ func (bin unixRecycleBin) Restore(trashFilename string) error {
 		return err
 	}
 	deletedFilePath := buildTrashFilePath(bin.Path, trashFilename)
-	err = fs.Rename(deletedFilePath, trashInfo.Path)
-	if err != nil {
+	if err := fs.Rename(deletedFilePath, trashInfo.Path); err != nil {
 		return err
 	}
 	err = fs.Remove(buildTrashInfoPath(bin.Path, trashFilename))
@@ -67,20 +64,18 @@ func (bin unixRecycleBin) Restore(trashFilename string) error {
 
 // Remove permanently deletes file from trash.
 func (bin unixRecycleBin) Remove(trashFilename string) error {
-	err := fs.Remove(buildTrashFilePath(bin.Path, trashFilename))
-	if err != nil {
+	if err := fs.Remove(buildTrashFilePath(bin.Path, trashFilename)); err != nil {
 		return err
 	}
-	err = fs.Remove(buildTrashInfoPath(bin.Path, trashFilename))
+	err := fs.Remove(buildTrashInfoPath(bin.Path, trashFilename))
 	return err
 }
 
 // Empty empties the trash.
 func (bin unixRecycleBin) Empty() error {
-	err := fs.RemoveAll(bin.Path + "/files")
-	if err != nil {
+	if err := fs.RemoveAll(bin.Path + "/files"); err != nil {
 		return err
 	}
-	err = fs.RemoveAll(bin.Path + "/info")
+	err := fs.RemoveAll(bin.Path + "/info")
 	return err
 }

@@ -34,13 +34,11 @@ func TestMoveToTrash(t *testing.T) {
 	if err != nil {
 		t.Error("unable to create test file for removal.")
 	}
-	err = f.Close()
-	if err != nil {
+	if err := f.Close(); err != nil {
 		t.Error("unable to close test file.")
 	}
 	trashedFilename := getTrashedFilename(trashPath, filename)
-	err = bin.Recycle(filename)
-	if err != nil {
+	if err = bin.Recycle(filename); err != nil {
 		t.Error("unable to recycle test file.")
 	}
 	fileExists, err := afero.Exists(fs, filename)
@@ -70,12 +68,10 @@ func TestDeleteFromTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
 	bin := NewRecycleBin(trashPath)
 	filename := "file"
-	err := createTrashFiles(trashPath, filename)
-	if err != nil {
+	if err := createTrashFiles(trashPath, filename); err != nil {
 		t.Error("unable to create test trash files")
 	}
-	err = bin.Remove(filename)
-	if err != nil {
+	if err := bin.Remove(filename); err != nil {
 		t.Error("unable to remove file")
 	}
 	if existsTrashFile(trashPath, filename) {
@@ -90,12 +86,10 @@ func TestRestoreFromTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
 	bin := NewRecycleBin(trashPath)
 	trashFilename := "file"
-	err := createTrashFiles(trashPath, trashFilename)
-	if err != nil {
+	if err := createTrashFiles(trashPath, trashFilename); err != nil {
 		t.Error("unable to create test trash files")
 	}
-	err = bin.Restore(trashFilename)
-	if err != nil {
+	if err := bin.Restore(trashFilename); err != nil {
 		t.Error("unable to restore file '" + trashFilename + "'")
 	}
 	if exists, _ := afero.Exists(fs, buildTrashFilePath(trashPath, trashFilename)); exists {
@@ -112,16 +106,13 @@ func TestRestoreFromTrash(t *testing.T) {
 func TestEmptyTrash(t *testing.T) {
 	trashPath := ".local/share/Trash"
 	bin := NewRecycleBin(trashPath)
-	err := createTrashFiles(trashPath, "script.sh")
-	if err != nil {
+	if err := createTrashFiles(trashPath, "script.sh"); err != nil {
 		t.Error("unable to create test trash files")
 	}
-	err = createTrashFiles(trashPath, "lib.so")
-	if err != nil {
+	if err := createTrashFiles(trashPath, "lib.so"); err != nil {
 		t.Error("unable to create test trash files")
 	}
-	err = bin.Empty()
-	if err != nil {
+	if err := bin.Empty(); err != nil {
 		t.Error("unable to empty the trash")
 	}
 	if existsTrashFile(trashPath, "script.sh") || existsTrashFile(trashPath, "lib.so") {
@@ -130,8 +121,7 @@ func TestEmptyTrash(t *testing.T) {
 }
 
 func createTrashFiles(trashPath string, filename string) error {
-	err := fs.MkdirAll(trashPath+"/files", os.ModeDir)
-	if err != nil {
+	if err := fs.MkdirAll(trashPath+"/files", os.ModeDir); err != nil {
 		return err
 	}
 	f, err := fs.Create(buildTrashFilePath(trashPath, filename))
@@ -139,8 +129,7 @@ func createTrashFiles(trashPath string, filename string) error {
 		return err
 	}
 	_ = f.Close()
-	err = fs.MkdirAll(trashPath+"/info", os.ModeDir)
-	if err != nil {
+	if err := fs.MkdirAll(trashPath+"/info", os.ModeDir); err != nil {
 		return err
 	}
 	f, err = fs.Create(buildTrashInfoPath(trashPath, filename))
@@ -149,8 +138,7 @@ func createTrashFiles(trashPath string, filename string) error {
 	}
 	defer f.Close()
 	content := "[Trash Info]\n" + "Path=" + filename + "\n" + "DeletionDate=2018-10-11\n"
-	_, err = f.WriteString(content)
-	if err != nil {
+	if _, err := f.WriteString(content); err != nil {
 		return err
 	}
 	return nil

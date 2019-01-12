@@ -76,8 +76,7 @@ func readDirectorySizes(f *os.File) []directorySize {
 func writeDirectorySizes(f *os.File, directorySizes []directorySize) error {
 	for _, directorySize := range directorySizes {
 		line := string(directorySize.size) + " " + string(directorySize.mtime) + string(directorySize.directoryName) + "\n"
-		_, err := f.WriteString(line)
-		if err != nil {
+		if _, err := f.WriteString(line); err != nil {
 			return err
 		}
 	}
@@ -87,14 +86,13 @@ func writeDirectorySizes(f *os.File, directorySizes []directorySize) error {
 func updateDirectorySizes(trashPath string, directorySizes []directorySize) error {
 	tmpFilePath := trashPath + "/" + directorySizesFilename + ".tmp"
 	tmpFile, err := fs.OpenFile(tmpFilePath, os.O_CREATE|os.O_EXCL, 0666)
+	if err != nil {
+		return err
+	}
 	defer tmpFile.Close()
-	if err != nil {
-		return err
-	}
-	err = nil //writeDirectorySizes(tmpFile, directorySizes)
-	if err != nil {
-		return err
-	}
+	//err := writeDirectorySizes(tmpFile, directorySizes); err != nil {
+	//	return err
+	//}
 	realFilePath := trashPath + "/" + directorySizesFilename
 	err = fs.Rename(tmpFilePath, realFilePath)
 	return err

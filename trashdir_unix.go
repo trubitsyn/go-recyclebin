@@ -68,8 +68,7 @@ func getDeviceTrashDirectory(partitionRootPath string, uid int) (string, error) 
 	hasTrash, _ := afero.DirExists(fs, topTrashPath)
 	if !hasTrash {
 		topTrashUidPath := ".Trash-" + strconv.Itoa(uid)
-		err := fs.Mkdir(topTrashUidPath, os.ModeDir)
-		if err != nil {
+		if err := fs.Mkdir(topTrashUidPath, os.ModeDir); err != nil {
 			return "", err
 		}
 		return topTrashUidPath, nil
@@ -82,8 +81,7 @@ func getDeviceTrashDirectory(partitionRootPath string, uid int) (string, error) 
 	uidTrashPath := topTrashPath + strconv.Itoa(uid)
 	hasUidTrash, _ := afero.DirExists(fs, uidTrashPath)
 	if !hasUidTrash {
-		err := fs.Mkdir(uidTrashPath, os.ModeDir)
-		if err != nil {
+		if err := fs.Mkdir(uidTrashPath, os.ModeDir); err != nil {
 			return "", err
 		}
 	}
